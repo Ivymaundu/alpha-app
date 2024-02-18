@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <div id="app">
+        <p>{{test}}</p>
+        <button v-on:click="test++"> add test</button>
+        <div v-if="loading">Loading...</div>
+        <li v-for="prod in prods">
+            {{ prod.id }}--{{prod.name}}--{{prod.price}}
+            
+        </li>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        // const { createApp } = Vue
+
+        Vue.createApp({
+            data() {
+                let message = 2;
+                let test = 8;
+                let t = 0;
+                let res = [];
+                let loading = false ;
+                let prods = null
+                console.log("called on mydata");
+                return { t, test, message, res, loading, prods }
+            },
+            methods: {
+                mycalc() {
+                    this.t = this.message + this.test;
+                    console.log("called on mycalc");
+
+                },
+                myproducts() {
+                    this.res.push({ "id": 1, "name": "Lema", "price": 50 });
+                },
+                fetchproducts() {
+                    axios.get('http://127.0.0.1:5000/products')
+                        .then(response => {
+                            console.log("response from api ",response);
+                            this.data = response.data;
+                            this.loading = false;
+                        })
+                        .catch(error => {
+                            console.error('Error fetching data:', error);
+                            this.loading = false;
+                        });
+
+                }
+
+            },
+            created() {
+                console.log("called on created");
+                this.mycalc();
+                this.myproducts();
+                this.fetchproducts();
+            }
+        }).mount('#app')
+    </script>
+</body>
+
+</html>
