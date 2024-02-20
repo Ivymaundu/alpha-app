@@ -4,19 +4,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/bootsrap.css">
     <title>Document</title>
 </head>
 
 <body>
 
     <div id="app">
-        <p>{{test}}</p>
-        <button v-on:click="test++"> add test</button>
-        <div v-if="loading">Loading...</div>
-        <li v-for="prod in prods">
-            {{ prod.id }}--{{prod.name}}--{{prod.price}}
-            
-        </li>
+        <div class="container"></div>
+        <thead>
+            <tr>
+              <th>Product name</th>
+              <th>Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="prod in prods" :key="prod.id">
+              <td> {{ prod.id }}</td>
+              <td> {{ prod.price }}</td>
+              <td> {{ prod.name }}</td>
+              
+            </tr>
+          </tbody>
+        </div>
     </div>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>

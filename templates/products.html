@@ -5,8 +5,8 @@
 
 {% endblock %}
 {% block content %}
-<div class="container" id="app" >
-  <div class="mt-4" id="myform" action="/viewprods" method="POST">
+<div class="container" id="app">
+  <div class="mt-4" id="myform" action="/" method="POST">
     <div class="myform" @submit.prevent="submitForm">
       <form class="mt-4">
         <div class="mb-3">
@@ -16,7 +16,7 @@
         </div>
         <div class="mb-3">
           <label for="buying_price" class="form-label">product price</label>
-          <input type="text" name="buying_price" id="product_name" class="form-control" required
+          <input type="text" name="buying_price" id="buying_price" class="form-control" required
             v-model="new_data.price">
         </div>
         <button type="submit" class="btn btn-success">Add Product</button>
@@ -25,21 +25,23 @@
 
 
   <div class="mytable">
-    <table class="table">
-    
-        <thead>
-          <tr>
-            <th>Product name</th>
-            <th>Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="prod in prods" :key="prods.id">
-            <td> {{ prod.name }}</td>
-            <td> {{ prod.price }}</td>
-          </tr>
-        </tbody>
-     
+    <table class="table" v-if="prods.length > 0">
+
+      <thead>
+        <tr>
+          <th>Product name</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="prod in prods" :key="prod.id">
+          <td> {{ prod.id }}</td>
+          <td> {{ prod.price }}</td>
+          <td> {{ prod.name }}</td>
+          
+        </tr>
+      </tbody>
+
 
     </table>
   </div>
@@ -58,7 +60,7 @@
       };
       let prods = [];
 
-      return { new_data,prods}
+      return { new_data, prods }
     },
     methods: {
       submitForm() {
@@ -67,7 +69,8 @@
         axios.post("http://127.0.0.1:5000/products", this.new_data)
           .then(Response => {
             console.log("result: ", Response)
-            this.data = Response.data;
+            this.prods.push(response.data);
+            this.loading = false;
           })
           .catch(error => {
             console.log(error);
@@ -85,13 +88,14 @@
             this.loading = false;
           });
 
-      }
-
+      },
+      
 
     },
     created() {
-      this.submitForm()
+      this.submitForm(),
       this.fetchproducts()
+      
     }
 
   }).mount('#app')
