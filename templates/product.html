@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/static/bootsrap.css">
+
+  <title>Products</title>
+</head>
+
+<body>
+  <div class="container-fluid" id="app">
+
+
+    <table class="table">
+
+      <!-- Button trigger modal -->
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+        Add product?
+      </button>
+
+      <!-- Modal -->
+      <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="staticBackdropLabel">Modal title</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+
+              <div class="myform" @submit.prevent="submit_form">
+                <form class="mt-4">
+                  <div class="mb-3">
+                    <label for="name" class="form-label">Product name</label>
+                    <input type="text" name="product_name" class="form-control" v-model="product_name" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="buying_price" class="form-label">product price</label>
+                    <input type="text" name="buying_price" id="buying_price" class="form-control"
+                      v-model="product_price" required>
+                  </div>
+                  <button type="submit" class="btn btn-success">Add Product</button>
+              </div>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <thead>
+        <tr>
+          <th scope="col">Id</th>
+          <th scope="col">Name</th>
+          <th scope="col">Price</th>
+
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="prods in products" :key="prods.id">
+          <td>{{prods.id}}</td>
+          <td>{{prods.name}}</td>
+          <td>{{prods.price}}</td>
+
+        </tr>
+
+      </tbody>
+    </table>
+
+    <canvas id="myChart" width="400" height="400"></canvas>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+    integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+
+    Vue.createApp({
+
+      data() {
+        return {
+        loading : false,
+        products: null,
+        product_name:null,
+        product_price:null,
+
+          chartData: {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            datasets: [{
+              label: 'Sales',
+              backgroundColor: 'rgba(54, 162, 235, 0.2)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1,
+              data: [65, 59, 80, 81, 56, 55, 40]
+            }]
+          }
+        };
+      },
+      //
+      methods: {
+        submit_form() {
+          this.loading = true
+          axios.post("http://127.0.0.1:5000/products", {
+            name: this.product_name,
+            price: this.product_price
+          })
+            .then((response) => {
+              console.log("product added:", response.data);
+              this.product_name = '';
+              this.product_price = ''
+              //  after adding product refresh
+              this.fetch_products();
+              // Close modal after adding product
+              this.close_modal();
+            })
+            .catch((error) => {
+              console.error("Error adding data:", error);
+              this.loading = false;
+            });
+
+        },
+        close_modal() {
+          $('#exampleModal').modal('hide');
+        },
+        fetch_products() {
+          axios.get("http://127.0.0.1:5000/products")
+            .then(response => {
+              console.log("response from api ", response);
+              this.products = response.data;
+              this.loading = false;
+            })
+            .catch(error => {
+              console.error('Error fetching data:', error);
+              this.loading = false;
+            });
+
+        },
+        dashboard() {
+        const ctx = document.getElementById('myChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'line',
+          data: this.chartData,
+          options: {
+            responsive: true
+          }
+        })
+      },
+
+
+      },
+      created() {
+        this.submit_form();
+        this.fetch_products();
+        
+      },
+      mounted(){
+        this.dashboard();
+      }
+    }).mount('#app')
+
+  </script>
+
+</body>
+
+</html>
