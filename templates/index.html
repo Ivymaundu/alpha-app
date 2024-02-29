@@ -12,21 +12,22 @@
 
     <div id="app">
         <div class="container"></div>
-        <thead>
-            <tr>
-              <th>Product name</th>
-              <th>Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="prod in prods" :key="prod.id">
-              <td> {{ prod.id }}</td>
-              <td> {{ prod.price }}</td>
-              <td> {{ prod.name }}</td>
-              
-            </tr>
-          </tbody>
+            <thead>
+                <tr>
+                    <th>Product name</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="prod in prods" :key="prod.id">
+                    <td> {{ prod.id }}</td>
+                    <td> {{ prod.price }}</td>
+                    <td> {{ prod.name }}</td>
+
+                </tr>
+            </tbody>
         </div>
+        <canvas id="myChart"></canvas>
     </div>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -37,14 +38,25 @@
 
         Vue.createApp({
             data() {
-                let message = 2;
-                let test = 8;
-                let t = 0;
-                let res = [];
-                let loading = false ;
-                let prods = null
+                return{
+                 message : 2,
+                 test : 8,
+                 t : 0,
+                 res : [],
+                 loading : false,
+                prods : null,
+                chartData: {
+                    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                    datasets: [{
+                        label: 'Sales',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        data: [65, 59, 80, 81, 56, 55, 40]
+                    }]
+                }}
                 console.log("called on mydata");
-                return { t, test, message, res, loading, prods }
+                // return { t, test, message, res, loading, prods ,chartData}
             },
             methods: {
                 mycalc() {
@@ -58,7 +70,7 @@
                 fetchproducts() {
                     axios.get('http://127.0.0.1:5000/products')
                         .then(response => {
-                            console.log("response from api ",response);
+                            console.log("response from api ", response);
                             this.data = response.data;
                             this.loading = false;
                         })
@@ -67,7 +79,17 @@
                             this.loading = false;
                         });
 
-                }
+                },
+                dashboard() {
+                    const ctx = document.getElementById('myChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: this.chartData,
+                        options: {
+                            responsive: true
+                        }
+                    })
+                },
 
             },
             created() {
@@ -75,6 +97,9 @@
                 this.mycalc();
                 this.myproducts();
                 this.fetchproducts();
+            },
+            mounted() {
+                this.dashboard();
             }
         }).mount('#app')
     </script>
