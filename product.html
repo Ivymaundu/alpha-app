@@ -85,15 +85,21 @@
         let prods = [];
         let loading = false;
         let url = 'http://127.0.0.1:5000/'
-        return { prods,loading ,url}
+        return { prods, loading, url }
       },
       methods: {
         fetch_products() {
+          const token = localStorage.getItem('access_token');
           this.loading = true
-          axios.get(this.url + 'products')
+          axios.get(this.url + 'products',{
+              headers: {
+                Authorization: `${token}`
+              }
+            })
             .then((response) => {
               // console.log("Response from API", response);
               this.prods = response.data;
+              console.log("header response----- "+ response.headers);
               // console.log("This is my products:", this.products);
               this.loading = false;
             })
@@ -104,13 +110,14 @@
               this.loading = false;
             });
         },
+        
 
-      },
-      created() {
-        this.fetch_products()
-      }
+          },
+          created() {
+            this.fetch_products()
+          }
 
-    }).mount('#app')
+        }).mount('#app')
 
   </script>
 </body>

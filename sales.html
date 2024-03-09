@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href=//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css rel="stylesheet">
+    <title>sales</title>
+</head>
+
+<body>
+    <div class="container-fluid" id="app">
+        <nav class="navbar navbar-expand-lg bg-body-tertiary" style="background-color: #6d97b4;">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <img src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="Bootstrap" width="30" height="24">
+                </a>
+
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                    <div class="navbar-nav">
+                        <a class="nav-link active" aria-current="page" href="#">Dashboard</a>
+                        <a class="nav-link" href="/products">Products</a>
+                        <a class="nav-link" href="#">Sales</a>
+
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <table class="table" id="myTable">
+
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                Add sale
+            </button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Sale details</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <select v-model="selected_Product_Id" class="form-select">
+                                <option value="" disabled>Select a product</option>
+                                <option v-for="prod in prods" :value="prod.id">{{ prod.name }}</option>
+                            </select>
+                            <input type="number" v-model="quantity" placeholder="Quantity" class="form-control">
+                            <button type="button" class="btn btn-primary" @click="make_sale">Make Sale</button>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <thead>
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Pid</th>
+                    <th scope="col">Quatity</th>
+                    <th scope="col">Created_at</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="sale in sales" :key="sale.id">
+
+                    <td>{{ sale.id }}</td>
+                    <td>{{ sale.pid }}</td>
+                    <td>{{ sale.quantity }}</td>
+                    <td>{{ sale.Created_at }}</td>
+                </tr>
+
+            </tbody>
+        </table>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+        integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+        let table = new DataTable('#myTable');
+    </script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        Vue.createApp({
+            data() {
+                let loading = false
+                let sales = []
+                let prods = []
+                let selected_Product_Id = null
+                let quantity = 0
+                let showModal = false
+                let url = 'http://127.0.0.1:5000/'
+
+                return {
+                    loading,
+                    sales,
+                    selected_Product_Id,
+                    quantity,
+                    prods,
+                    url,
+                    showModal
+                }
+            },
+
+            methods: {
+                fetch_sales() {
+                    this.loading = true
+                    const token = localStorage.getItem('access_token');
+                    axios.get(this.url + "sales", {
+                        headers: {
+                            Authorization: `${token}`
+                        }})
+                        .then((response) => {
+                            console.log("Response from API", response);
+                            this.sales = response.data;
+                            console.log("This is my sales:", this.sales);
+                            this.loading = false;
+                        })
+                        .catch((error) => {
+                            console.error("Error fetching data:", error);
+                            this.loading = false;
+                        });
+                },
+                fetch_products() {
+                    const token = localStorage.getItem('access_token');
+                    this.loading = true
+                    axios.get(this.url + 'products', {
+                        headers: {
+                            Authorization: `${token}`
+                        }
+                    })
+                        .then((response) => {
+                            // console.log("Response from API", response);
+                            this.prods = response.data;
+                            console.log("header response----- " + response.headers);
+                            // console.log("This is my products:", this.products);
+                            this.loading = false;
+                        })
+                        .catch((error) => {
+                            // console.error("Error fetching data:", error);
+                        })
+                        .finally(() => {
+                            this.loading = false;
+                        });
+                },
+
+
+                validateSaleData(saleData) {
+
+                    if (!saleData || !saleData.pid || saleData.quantity <= 0) {
+                        return false; // Sale data is invalid
+                    }
+                    return true; // Sale data is valid
+                },
+                make_sale() {
+                    // Validate sale data
+                    if (!this.validateSaleData({ pid: this.selected_Product_Id, quantity: this.quantity })) {
+                        alert('Sale data is invalid. Please provide valid data.');
+                        return; // Exit function early if sale data is invalid
+                    }
+                },
+                make_sale() {
+                    this.loading = true;
+                    axios.post(this.url + "sales",
+                        {
+                            pid: this.selected_Product_Id,
+                            quantity: this.quantity
+                        })
+                        .then((response) => {
+                            console.log("Response from API", response);
+                            this.fetch_sales()
+                            this.close_modal()
+                        })
+                        .catch((error) => {
+                            console.error("Error adding data:", error);
+                        })
+                        .finally(() => {
+                            this.loading = false;
+                        });
+
+                },
+                closeModal() {
+                    this.showModal = false;
+                }
+
+            },
+            created() {
+                this.fetch_products();
+                this.make_sale()
+            }
+
+        }).mount('#app')
+    </script>
+</body>
+
+</html>

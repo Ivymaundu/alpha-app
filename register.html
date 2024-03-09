@@ -251,7 +251,7 @@
                 </div>
             </nav>
 
-            <div class='bold-line'></div>
+            
             <div class='container'>
                 <div class='window'>
                     <div class='overlay'></div>
@@ -272,6 +272,7 @@
                             <!-- <div class='spacing'>or continue with <span class='highlight'>Facebook</span></div> -->
                             <div><button class='ghost-round full-width'>Create Account</button></div>
                         </form>
+                        Already have an account?<a href="login.html" style="text-decoration: none;">login</a>
                     </div>
                 </div>
             </div>
@@ -308,6 +309,7 @@
                         axios.post(this.url + "register", this.user_details)
                             .then((response) => {
                                 console.log("Response from API", response);
+                                window.location.href="login.html"
                                 
                             })
                             .catch((error) => {
