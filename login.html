@@ -280,13 +280,22 @@
 							.then((response) => {
 								console.log("Response from API", response);
 								token = response.data.access_token
+						
 
 								console.log("access_token from api", token)
-								localStorage.setItem('access_token', response.data.access_token);
-
+								localStorage.setItem('access_token', token);
 								saved_token = localStorage.getItem('access_token')
-
 								console.log("access_token from storage", saved_token)
+
+
+								id=response.data.user_id
+								// console.log(id)
+								localStorage.setItem('user_id', id);
+							
+								uid=localStorage.getItem('user_id');
+								
+								console.log("uid------",uid)
+							
 								window.location.href = "dashboard2.html"
 
 							})

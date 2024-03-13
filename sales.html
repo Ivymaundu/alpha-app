@@ -12,28 +12,23 @@
 
 <body>
     <div class="container-fluid" id="app">
-        <nav class="navbar navbar-expand-lg bg-body-tertiary" style="background-color: #6d97b4;">
+        <nav class="navbar navbar-expand-lg" style="background-color: #DFAFDB;">
             <div class="container">
-                <a class="navbar-brand" href="#">
-                    <img src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="Bootstrap" width="30" height="24">
-                </a>
-
-
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false"
-                    aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-                    <div class="navbar-nav">
-                        <a class="nav-link active" aria-current="page" href="#">Dashboard</a>
-                        <a class="nav-link" href="/products">Products</a>
-                        <a class="nav-link" href="#">Sales</a>
-
-                    </div>
+      
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
+                aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                  <a class="nav-link active" aria-current="page" href="dashboard2.html">Dashboard</a>
+                  <a class="nav-link" href="product.html">Products</a>
+                  <a class="nav-link" href="sales.html">Sales</a>
+      
                 </div>
+              </div>
             </div>
-        </nav>
+          </nav>
 
         <table class="table" id="myTable">
 
@@ -57,7 +52,7 @@
                                 <option v-for="prod in prods" :value="prod.id">{{ prod.name }}</option>
                             </select>
                             <input type="number" v-model="quantity" placeholder="Quantity" class="form-control">
-                            <button type="button" class="btn btn-primary" @click="make_sale">Make Sale</button>
+                            <button type="submit" class="btn btn-primary" @click="make_sale">Make Sale</button>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -128,10 +123,7 @@
                 fetch_sales() {
                     this.loading = true
                     const token = localStorage.getItem('access_token');
-                    axios.get(this.url + "sales", {
-                        headers: {
-                            Authorization: `${token}`
-                        }})
+                    axios.get(this.url + "sales")
                         .then((response) => {
                             console.log("Response from API", response);
                             this.sales = response.data;
@@ -167,21 +159,22 @@
                 },
 
 
-                validateSaleData(saleData) {
+                // validateSaleData(saleData) {
 
-                    if (!saleData || !saleData.pid || saleData.quantity <= 0) {
-                        return false; // Sale data is invalid
-                    }
-                    return true; // Sale data is valid
-                },
+                //     if (!saleData || !saleData.pid || saleData.quantity <= 0) {
+                //         return false; // Sale data is invalid
+                //     }
+                //     return true; // Sale data is valid
+                // },
+                // make_sale() {
+                //     // Validate sale data
+                //     if (!this.validateSaleData({ pid: this.selected_Product_Id, quantity: this.quantity })) {
+                //         alert('Sale data is invalid. Please provide valid data.');
+                //         return; // Exit function early if sale data is invalid
+                //     }
+                // },
                 make_sale() {
-                    // Validate sale data
-                    if (!this.validateSaleData({ pid: this.selected_Product_Id, quantity: this.quantity })) {
-                        alert('Sale data is invalid. Please provide valid data.');
-                        return; // Exit function early if sale data is invalid
-                    }
-                },
-                make_sale() {
+                    const token = localStorage.getItem('access_token');
                     this.loading = true;
                     axios.post(this.url + "sales",
                         {
@@ -206,9 +199,22 @@
                 }
 
             },
-            created() {
-                this.fetch_products();
-                this.make_sale()
+            mounted() {
+                const token = localStorage.getItem("access_token");
+                if (token) {
+                    const tokenData = JSON.parse(atob(token.split(".")[1]));
+                    const currentTimestamp = Math.floor(Date.now() / 1000);
+                    if (tokenData.exp < currentTimestamp) {
+                        window.location.href = 'login.html'
+                    }
+                    else {
+
+                        this.fetch_products();
+                        this.fetch_sales();
+                    }
+                } else {
+                    window.location.href = 'login.html'
+                }
             }
 
         }).mount('#app')

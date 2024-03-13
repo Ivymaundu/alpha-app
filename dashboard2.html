@@ -161,9 +161,14 @@
 
     <div class="container-fluid">
         <div class="row">
+
             <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
                 <div class="position-sticky pt-3">
+                    <div v-if="flashMessage" class="alert alert-success" role="alert" style="color:#007bff;">
+                        Welcome to your account
+                    </div>
                     <ul class="nav flex-column">
+
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="dashboard.html">
                                 <span data-feather="home"></span>
@@ -238,6 +243,7 @@
                             This week
                         </button>
                     </div>
+
                 </div>
                 <div id="app">
 
@@ -342,13 +348,18 @@
             data() {
                 return {
                     products: [],
-                    sales: []
+                    sales: [],
+                    flashMessage: false,
                 }
             },
 
             mounted() {
 
                 if (localStorage.getItem('access_token')) {
+                    this.flashMessage = true;
+                    setTimeout(() => {
+                        this.flashMessage = false;
+                    }, 3000);
 
                     this.renderChart();
                     this.renderLineChart();
@@ -360,6 +371,7 @@
                 else {
 
                 }
+
 
             },
             methods: {
